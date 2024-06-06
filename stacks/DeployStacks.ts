@@ -21,13 +21,35 @@ export class DeployStack extends NestedStack {
       api: api,
     });
     const logGroup = new logs.LogGroup(this, 'ApiLogs');
-    const methodOptionsDict = {};
+    let methodOptionsDict = {};
+
+    if (props.methods) {
+      for (let item of props.methods) {
+        let method = item[0]
+        let cacheVariable = item[1]
+
+        if (method) {
+          const resource_ = method.resource.path;
+          const method_ = method.httpMethod;
+
+          if (cacheVariable) {
+              methodOptionsDict[`/api${resource_}/${method_}`] = {
+                cachingEnabled: true,
+                cacheTtl: Duration.minutes(cacheTtl)
+              }
+              deployment.node.addDependency(method);
+            } else {
+              methodOptionsDict[`/api${resource_}/${method_}`] = {
+                cachingEnabled: false
+              }
+            }
+        };
+      }
+    }
 
 
     const stage = new Stage(this, 'Stage', {
       deployment,
-      cachingEnabled: true,
-      cacheClusterSize: cacheClusterSize, // Specifies the cache size
       accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
       stageName: props.stageName+'-',
       tracingEnabled: true,

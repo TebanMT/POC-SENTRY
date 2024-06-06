@@ -9,6 +9,7 @@ import {rolesPermissionsMapper} from './rolesPermissions';
 import {createRoles} from "./lambdaResources";
 import {createLambdaFunctions} from "./lambdaFunctions";
 import {returnEnvVariables} from "./envVariables";
+import {Duration} from "aws-cdk-lib";
 import {createLambdaLogGroup} from "./logGroups";
 import {addResourceApiGateway} from "./resourcesIntegration";
 import {addLambdaFunctionsIntegration} from "./lambdaFunctionsIntegration";
@@ -22,6 +23,31 @@ export class CommonStack extends NestedStack {
         super(scope, 'integ-restapi-import-common', props);
 
         const stageName = String(process.env.STAGE_NAME || "");
+        const environment_var = String(process.env.ENVIRONMENT_VAR || "");
+        const cache_duration = String(process.env.CACHE_TIME || 0); // CITIES ENVS
+        const password_es_cities = String(process.env.PASSWORD_ES_CITIES || "");
+        const access_allow_origin = String(
+            process.env.ACCESS_CONTROL_ALLOW_ORIGIN || "*"
+        );
+        const base_api_rest_keycloak = String(
+            process.env.BASE_API_REST_KEYCLOAK || ""
+        );
+        const realm_keycloak = String(process.env.REALM_KEYCLOAK || "");
+        const insights_enabled = String(process.env.INSIGHTS_ENABLED)
+        const contactTableEnv = String(process.env.HERMES2_CONTACT_TABLE_ENV)
+        const baseUrlElastichSearchCustomer = String(process.env.BASE_URL_ELASTICSEARCH_SEARCH_CUSTOMER)
+
+        const environment = {
+            STAGE_NAME: stageName,
+            PASSWORD_ES_CITIES: password_es_cities,
+            ACCESS_CONTROL_ALLOW_ORIGIN: access_allow_origin,
+            BASE_API_REST_KEYCLOAK: base_api_rest_keycloak,
+            REALM_KEYCLOAK: realm_keycloak,
+            ENVIRONMENT_VAR: environment_var,
+            HERMES2_CONTACT_TABLE_ENV: contactTableEnv,
+            BASE_URL_ELASTICSEARCH_SEARCH_CUSTOMER: baseUrlElastichSearchCustomer
+        };
+
         const logGroup = createLambdaLogGroup(this, props.stageName, "common-stack");
 
         const utilsLayer = getUtilsLayer(this);
@@ -32,6 +58,29 @@ export class CommonStack extends NestedStack {
                 restApiId: props.restApiId,
                 rootResourceId: props.rootResourceId,
         });
+
+        const lambdaFunctionAuthorizer = new lambda.Function(this, stageName + "-AuthorizerFunction", {
+            runtime: props.lambdaRuntime,
+            handler: "api_gateway_authorizer.authorizer",
+            environment: environment,
+            code: lambda.Code.fromAsset("services/functions/handlers/sentry"),
+            layers: [utilsLayer, authenticationLayer ],
+            timeout: Duration.seconds(60),
+            logGroup : logGroup,
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_143_0,
+        });
+        const authorizer = new apigateway.TokenAuthorizer(
+            this,
+            stageName + "-Hermes20Auth",
+            {
+                authorizerName: stageName + "-keycloakAuthorizer",
+                handler: lambdaFunctionAuthorizer,
+                identitySource: apigateway.IdentitySource.header("Authorizer"),
+                resultsCacheTtl: Duration.seconds(Number(cache_duration)),
+            }
+        );
+
+        authorizer._attachToApi(api)
 
 
 
@@ -57,7 +106,7 @@ export class CommonStack extends NestedStack {
          );
 
         const resource = addResourceApiGateway(api, 'test')
-        addLambdaFunctionsIntegration(this, resource, 'GET', false, lambdaFunction, {})
+        addLambdaFunctionsIntegration(this, resource, 'GET', false, lambdaFunction, authorizer, {})
 
 
 

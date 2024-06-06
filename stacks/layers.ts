@@ -4,12 +4,12 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 
 export function getUtilsLayer(stack: Stack) {
     const versionUtilsLayerArn = String(process.env.ARN_LAYER_UTILS || "");
-    return lambda.LayerVersion.fromLayerVersionArn(stack, "utilsLayerArn", 'arn:aws:lambda:us-east-1:933334258191:layer:estebanLayerTest:67');
+    return lambda.LayerVersion.fromLayerVersionArn(stack, "utilsLayerArn", versionUtilsLayerArn);
 }
 
 export function getAuthenticationLayer(stack: Stack) {
     const versionAuthenticationLayerArn = String(process.env.ARN_LAYER_AUTHENTICATION || "");
-    return lambda.LayerVersion.fromLayerVersionArn(stack, "authenticationLayerArn", 'arn:aws:lambda:us-east-1:933334258191:layer:estebanExternalLibrariesTest:3');
+    return lambda.LayerVersion.fromLayerVersionArn(stack, "authenticationLayerArn", versionAuthenticationLayerArn);
 }
 
 export function getZeepLayer(stack: Stack) {

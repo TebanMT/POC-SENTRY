@@ -1,12 +1,13 @@
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import {Duration} from "aws-cdk-lib";
 
-export function addLambdaFunctionsIntegration(stack: any, currentResource: any, method: string, cacheEnable: any, lambdaFunction: any, addedOptions: any) {
+export function addLambdaFunctionsIntegration(stack: any, currentResource: any, method: string, cacheEnable: any, lambdaFunction: any, apiAuthorizer: any, addedOptions: any) {
     const lambdaIntegration = new apigateway.LambdaIntegration(lambdaFunction, {
         proxy: true,
     });
 
     const method_ = [currentResource.addMethod(method, lambdaIntegration, {
+        authorizer: apiAuthorizer,
         methodResponses: [
             {
                 statusCode: '200',
