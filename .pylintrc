@@ -1,0 +1,12 @@
+[MESSAGES CONTROL]
+disable=duplicate-code
+
+[BASIC]
+
+# Good variable names which should always be accepted, separated by a comma.
+good-names=i, j, k, s3
+
+[MISCELLANEOUS]
+
+# List of note tags to take in consideration, separated by a comma.
+notes=TODO

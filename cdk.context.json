@@ -1,0 +1,4 @@
+{
+  "ssm:account=933334258191:parameterName=/terraform/hermes2/dev/dynamo_agent_version:region=us-east-1": "hermes2_agent_net_version_dev",
+  "ssm:account=933334258191:parameterName=/terraform/hermes2/dev/TaxIdentificationTypes:region=us-east-1": "hermes2_tax_identification_types_dev"
+}

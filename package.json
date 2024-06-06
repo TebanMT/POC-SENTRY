@@ -1,0 +1,32 @@
+{
+  "name": "hermes2",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "sst start",
+    "dev": "sst dev",
+    "build": "sst build",
+    "deploy": "sst deploy",
+    "remove": "sst remove",
+    "console": "sst console",
+    "typecheck": "tsc --noEmit",
+    "test-domain": "cd services && pytest functions/tests/token",
+    "test-api": "cd services && pytest  functions/tests/api",
+    "test-coverage": "cd services && pylint functions && pytest --cov-config=.coveragerc --cov=functions --cov-report=html functions/tests/"
+  },
+  "devDependencies": {
+    "sst": "2.16.3",
+    "aws-cdk-lib": "2.84.0",
+    "constructs": "10.1.156",
+    "@tsconfig/node16": "^1.0.4",
+    "typescript": "^4.8.4",
+    "vitest": "^0.25.1"
+  },
+  "dependencies": {
+    "@serverless-stack/node": "^1.17.1",
+    "uuid": "^9.0.0"
+  },
+  "workspaces": [
+    "services"
+  ]
+}

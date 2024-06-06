@@ -1,0 +1,8 @@
+{
+    "python.linting.enabled": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "python.linting.pylintEnabled": true,
+    "conventionalCommits.scopes": [
+        "auth"
+    ],
+}
